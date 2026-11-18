@@ -145,6 +145,12 @@ html.calm .bugnote{display:none}
 @media (max-width:560px){.nt li{grid-template-columns:52px minmax(0,1fr)}.nt-n,.nt-c{display:none}}
 .hintbox{margin:0;padding:10px 12px;background:#2A2410;border:1px dashed var(--tape);color:var(--tape);font-size:14px}
 .clues.open{border-top:1px dashed var(--line2);padding-top:12px;margin-top:8px}
+.promo-sec{padding-block:24px 8px}
+.promo-frame{position:relative;max-width:980px;margin-top:20px;transform:rotate(-1deg);background:#000;border:2px solid var(--blood);box-shadow:0 0 0 6px rgba(165,15,22,.15),0 20px 44px rgba(0,0,0,.7)}
+.promo-frame video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#000}
+.pf-tape{position:absolute;width:120px;height:30px;background:rgba(242,194,48,.88);z-index:2}
+.pf-tape.a{top:-14px;left:-26px;transform:rotate(-24deg)}
+.pf-tape.b{bottom:-14px;right:-26px;transform:rotate(-24deg)}
 .rn{display:inline-block;font-style:normal;line-height:1.05;margin:0 .03em .1em;box-shadow:1px 2px 0 rgba(0,0,0,.6);text-shadow:none;vertical-align:middle;position:relative}
 .rn.bare{box-shadow:none}
 .rn-sp{display:inline-block;width:.34em}
@@ -617,6 +623,15 @@ V.home=()=>{
    <div class="row" style="margin-top:16px;justify-content:space-between"><span class="muted">${S.heroPair+1} / ${PAIRS.length}</span><button class="btn sec" id="nextPair" style="min-height:40px">다른 증거 보기</button></div>
   </div>
  </section>
+ <section class="wrap promo-sec">
+  <p class="eyebrow">15초 만에 보는 Bloody House</p>
+  <h2 class="h2" style="margin-top:14px">책방 <em>홍보 영상</em></h2>
+  <div class="promo-frame">
+   <span class="pf-tape a" aria-hidden="true"></span><span class="pf-tape b" aria-hidden="true"></span>
+   <video id="promoVid" src="promo.mp4" poster="promo-poster.jpg" muted loop playsinline controls preload="metadata" aria-label="Bloody House 15초 홍보 영상"></video>
+  </div>
+  <div class="row" style="margin-top:18px"><button class="btn sec" id="vidSound">소리 켜고 보기</button><span class="muted">처음엔 소리 없이 재생돼요.</span></div>
+ </section>
  ${eventBand()}
  <section class="wrap blk">
   <p class="eyebrow">그래서, 여기서 뭘 파냐고요?</p>
@@ -1002,6 +1017,7 @@ let prev=['home'];
 function render(){
  document.getElementById('app').innerHTML=V[S.view]();
  document.querySelectorAll('#app .h1, #app .h2').forEach(ransomify);
+ {const v=document.getElementById('promoVid');if(v){if(!HTML.classList.contains('calm')&&!HTML.classList.contains('gated')){v.play().catch(()=>{})}}}
  {const eb=document.getElementById('evbar');if(eb){const C=CASES[S.ev];eb.innerHTML=`<b>EVENT</b> 오늘의 사건 「${C.title}」 · 범인을 맞히면 <u>2,000원 쿠폰</u> · 공지사항에서 CASE마다 힌트 확인 가능! <span aria-hidden="true">→</span>`;eb.hidden=S.view==='answer'}}
  document.querySelectorAll('nav.menu button').forEach(b=>b.setAttribute('aria-current',b.dataset.go===S.view||(b.dataset.go==='quiz'&&S.view==='result')||(b.dataset.go==='box'&&['order','done'].includes(S.view))?'page':'false'));
  const lf=document.getElementById('likedForm');
@@ -1035,12 +1051,13 @@ document.addEventListener('click',ev=>{
  if(t.dataset.ans){S.ans[Q[S.step].k]=t.dataset.ans;render();return}
  if(t.dataset.case){const i=+t.dataset.case;if(i===1){S.caseDone=true;toast('감식 완료! 오늘 출석 도장이 찍혔어요')}else S.caseWrong=i;render();return}
  switch(t.id){
-  case 'enter':HTML.classList.remove('gated','calm');fxSet('on');syncFx();render();break;
+  case 'enter':HTML.classList.remove('gated','calm');fxSet('on');syncFx();render();window.scrollTo(0,0);break;
   case 'enterCalm':HTML.classList.remove('gated');HTML.classList.add('calm');fxSet('calm');syncFx();render();break;
   case 'fxToggle':HTML.classList.toggle('calm');fxSet(HTML.classList.contains('calm')?'calm':'on');syncFx();render();toast(HTML.classList.contains('calm')?'벌레와 피 효과를 껐어요':'벌레와 피 효과를 켰어요');break;
   case 'showSol':curAc().showSol=!curAc().showSol;render();break;
   case 'hintBtn':curAc().showHint=!curAc().showHint;render();break;
   case 'toNotice':{const n=document.getElementById('notice');if(n)n.scrollIntoView({behavior:'smooth',block:'start'})}break;
+  case 'vidSound':{const v=document.getElementById('promoVid');if(v){v.muted=false;v.currentTime=0;v.play().catch(()=>{});t.textContent='처음부터 다시 보기'}}break;
   case 'nextEv':S.ev=S.ev%5+1;render();break;
   case 'nextEvA':S.ev=S.ev%5+1;S.cur=S.ev;render();window.scrollTo(0,0);break;
   case 'nextPair':S.heroPair=(S.heroPair+1)%PAIRS.length;render();break;
